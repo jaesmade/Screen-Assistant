@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { createCredentialStore } from "../src/main/credentials.ts";
-import { isTrustedRendererUrl } from "../src/main/security.ts";
+import { isTrustedRendererUrl, externalHttpUrl } from "../src/main/security.ts";
 import {
   fetchJsonWithTimeout,
   REQUEST_TIMEOUT_MESSAGE,
@@ -162,6 +162,26 @@ test("IPC URL checks reject arbitrary local pages and misleading development URL
     isTrustedRendererUrl("http://localhost:5173/", production),
     false,
   );
+});
+
+test("external links only allow web URLs without embedded credentials", () => {
+  assert.equal(
+    externalHttpUrl("https://example.com/learn?q=math#steps"),
+    "https://example.com/learn?q=math#steps",
+  );
+  assert.equal(externalHttpUrl("http://example.com"), "http://example.com/");
+  for (const invalid of [
+    "javascript:alert(1)",
+    "file:///C:/Windows",
+    "data:text/html,hello",
+    "mailto:user@example.com",
+    "https://user:password@example.com",
+    "relative/path",
+    null,
+    "https://example.com/" + "x".repeat(4096),
+  ]) {
+    assert.throws(() => externalHttpUrl(invalid), /cannot be opened/);
+  }
 });
 
 test("a stalled initial response times out and aborts the HTTP request", async () => {

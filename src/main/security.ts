@@ -26,3 +26,20 @@ export function isTrustedRendererUrl(
     return false;
   }
 }
+
+export function externalHttpUrl(value: unknown): string {
+  if (typeof value !== "string" || value.length > 4096)
+    throw new Error("This link cannot be opened.");
+  try {
+    const url = new URL(value);
+    if (
+      !["https:", "http:"].includes(url.protocol) ||
+      url.username ||
+      url.password
+    )
+      throw new Error("Unsupported link");
+    return url.href;
+  } catch {
+    throw new Error("This link cannot be opened.");
+  }
+}

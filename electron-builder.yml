@@ -1,0 +1,41 @@
+appId: com.jaesmade.studydesk
+productName: Study Desk
+artifactName: Study-Desk-${version}-Setup-${arch}.${ext}
+directories:
+  output: dist
+  buildResources: build
+files:
+  - out/**
+  - package.json
+  - '!out/**/*.map'
+  - '!node_modules/@tesseract.js-data/eng/4.0.0/**'
+  - '!node_modules/tesseract.js/dist/**'
+  - '!node_modules/tesseract.js-core/*.wasm.js'
+asar: true
+asarUnpack:
+  - out/main/ocr-worker.js
+  - node_modules/**
+extraResources:
+  - from: build/icon.png
+    to: icon.png
+npmRebuild: false
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.ico
+  requestedExecutionLevel: asInvoker
+  signAndEditExecutable: true
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  shortcutName: Study Desk
+  deleteAppDataOnUninstall: false
+publish:
+  provider: github
+  owner: jaesmade
+  repo: Screen-Assistant
+  releaseType: release
